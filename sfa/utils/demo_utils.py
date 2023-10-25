@@ -42,7 +42,7 @@ def parse_demo_configs():
     parser.add_argument('--pretrained_path', type=str,
                         default='../checkpoints/fpn_resnet_18/fpn_resnet_18_epoch_300.pth', metavar='PATH',
                         help='the path of the pretrained checkpoint')
-    parser.add_argument('--foldername', type=str, default='2011_09_26_drive_0014_sync', metavar='FN',
+    parser.add_argument('--foldername', type=str, default='2011_09_26_drive_0013_sync', metavar='FN',
                         help='Folder name for demostration dataset')
     parser.add_argument('--K', type=int, default=50,
                         help='the number of top K')

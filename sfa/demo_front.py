@@ -14,7 +14,7 @@ import os
 import time
 import warnings
 import zipfile
-
+import cv_bridge
 warnings.filterwarnings("ignore", category=UserWarning)
 
 import cv2
@@ -38,10 +38,11 @@ from utils.demo_utils import parse_demo_configs, do_detect, download_and_unzip, 
 
 if __name__ == '__main__':
     configs = parse_demo_configs()
-
+    
     # Try to download the dataset for demonstration
     server_url = 'https://s3.eu-central-1.amazonaws.com/avg-kitti/raw_data'
     download_url = '{}/{}/{}.zip'.format(server_url, configs.foldername[:-5], configs.foldername)
+    print(download_url)
     download_and_unzip(configs.dataset_dir, download_url)
 
     model = create_model(configs)
@@ -60,7 +61,7 @@ if __name__ == '__main__':
         for sample_idx in range(len(demo_dataset)):
             metadatas, bev_map, img_rgb = demo_dataset.load_bevmap_front(sample_idx)
             detections, bev_map, fps = do_detect(configs, model, bev_map, is_front=True)
-
+            
             # Draw prediction in the image
             bev_map = (bev_map.permute(1, 2, 0).numpy() * 255).astype(np.uint8)
             bev_map = cv2.resize(bev_map, (cnf.BEV_WIDTH, cnf.BEV_HEIGHT))
@@ -73,10 +74,10 @@ if __name__ == '__main__':
             img_bgr = cv2.cvtColor(img_rgb, cv2.COLOR_RGB2BGR)
             calib = Calibration(configs.calib_path)
             kitti_dets = convert_det_to_real_values(detections)
+            print(kitti_dets)
             if len(kitti_dets) > 0:
                 kitti_dets[:, 1:] = lidar_to_camera_box(kitti_dets[:, 1:], calib.V2C, calib.R0, calib.P2)
                 img_bgr = show_rgb_image_with_boxes(img_bgr, kitti_dets, calib)
-
             out_img = merge_rgb_to_bev(img_bgr, bev_map, output_width=configs.output_width)
             write_credit(out_img, (80, 210), text_author='Cre: github.com/maudzung', org_fps=(80, 250), fps=fps)
             if out_cap is None:
